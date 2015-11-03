@@ -2,9 +2,9 @@ const ACCOUNT_REQUEST = 'pgpst/account/ACCOUNT_REQUEST';
 const ACCOUNT_SUCCESS = 'pgpst/account/ACCOUNT_SUCCESS';
 const ACCOUNT_FAILURE = 'pgpst/account/ACCOUNT_FAILURE';
 
-const ADDRESSES_REQUEST = 'pgpst/account/ADDRESSES_REQUEST';
-const ADDRESSES_SUCCESS = 'pgpst/account/ADDRESSES_SUCCESS';
-const ADDRESSES_FAILURE = 'pgpst/account/ADDRESSES_FAILURE';
+const KEYS_REQUEST = 'pgpst/account/KEYS_REQUEST';
+const KEYS_SUCCESS = 'pgpst/account/KEYS_SUCCESS';
+const KEYS_FAILURE = 'pgpst/account/KEYS_FAILURE';
 
 const LABELS_REQUEST = 'pgpst/account/LABELS_REQUEST';
 const LABELS_SUCCESS = 'pgpst/account/LABELS_SUCCESS';
@@ -14,7 +14,8 @@ const initialState = {
 	loading: false,
 	account: null,
 	addresses: false,
-	labels: false
+	labels: false,
+	keys: false,
 }
 
 export default function reducer(state = initialState, action = {}) {
@@ -36,22 +37,22 @@ export default function reducer(state = initialState, action = {}) {
 				account: null,
 				accountError: action.error
 			};
-		case ADDRESSES_REQUEST:
+		case KEYS_REQUEST:
 			return {
 				...state,
-				addressesLoading: true
+				keysLoading: true
 			};
-		case ADDRESSES_SUCCESS:
+		case KEYS_SUCCESS:
 			return {
 				...state,
-				addresses: action.result,
-				addressesLoading: false
+				keys: action.result,
+				keysLoading: false
 			};
-		case ADDRESSES_FAILURE:
+		case KEYS_FAILURE:
 			return {
 				...state,
-				addresses: null,
-				addressesError: action.error
+				keys: null,
+				keysError: action.error
 			};
 		case LABELS_REQUEST:
 			return {
@@ -112,9 +113,26 @@ export function fetchLabels() {
 	};
 }
 
-export function fetchAddresses() {
+export function fetchKeys() {
 	return {
-		types: [ADDRESSES_REQUEST, ADDRESSES_SUCCESS, ADDRESSES_FAILURE],
-		promise: (client) => client.get('/accounts/me/addresses')
+		types: [KEYS_REQUEST, KEYS_SUCCESS, KEYS_FAILURE],
+		promise: (client) => new Promise((resolve, reject) => {
+			Promise.all([
+				client.get('/accounts/me/resources?tags=keychain'),
+				client.get('/accounts/me/keys'),
+				// load keys from cache
+			]).then(([resource, server_keys, cache]) => {
+				const result = {};
+
+				server_keys.forEach((key) => {
+
+				});
+				// map
+
+				resolve(result);
+			}, (error) => {
+				reject(error);
+			});
+		})
 	};
 }

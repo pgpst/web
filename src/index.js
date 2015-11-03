@@ -9,10 +9,8 @@ import { Router, Route, IndexRoute} from 'react-router';
 import API from 'api';
 import configureStore from 'state';
 
-import Home from './containers/home/Home';
 import UsersPage from './containers/user/UsersPage';
 import ReposPage from './containers/repo/ReposPage';
-import About from './containers/about/About';
 
 import App from './containers/App';
 import NotFound from './containers/NotFound/NotFound';

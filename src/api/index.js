@@ -35,8 +35,6 @@ export default class API {
 
 	bindToStore(store) {
 		store.subscribe(() => {
-			console.log("scope update");
-
 			const state = store.getState();
 
 			if (state && state.auth && state.auth.token) {

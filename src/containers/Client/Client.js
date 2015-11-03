@@ -1,7 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { signOut } from 'state/modules/auth';
-import { fetchAccount, fetchLabels, fetchAddresses } from 'state/modules/account';
+import {
+	fetchAccount,
+	fetchLabels,
+	fetchKeys,
+} from 'state/modules/account';
 import { Link } from 'react-router';
 import { NavLink } from 'components';
 import './Client.css';
@@ -13,7 +17,7 @@ import './Client.css';
 	signOut: (token) => dispatch(signOut(token)),
 	fetchAccount: () => dispatch(fetchAccount()),
 	fetchLabels: () => dispatch(fetchLabels()),
-	fetchAddresses: () => dispatch(fetchAddresses())
+	fetchKeys: () => dispatch(fetchKeys()),
 }))
 export default class Client extends React.Component {
 	static contextTypes = {
@@ -31,30 +35,19 @@ export default class Client extends React.Component {
 			this.context.history.replaceState(null, '/');
 		}
 
-		if (!nextProps.params.label) {
-			if (nextProps.account.labels && nextProps.account.labels.lookup) {
-				let inbox = nextProps.account.labels.lookup["Inbox"];
-				if (inbox) {
-					this.context.history.replaceState(null, '/emails/' + inbox.id);
-				}
-			}
-		}
-
-		console.log(nextProps.account);
-
 		if (!nextProps.account.account && !nextProps.account.accountLoading) {
 			// Load account
 			nextProps.fetchAccount();
 		}
 
+		if (!nextProps.account.keys && !nextProps.account.keysLoading) {
+			// Load keys
+			nextProps.fetchKeys();
+		}
+
 		if (!nextProps.account.labels && !nextProps.account.labelsLoading) {
 			// Load labels
 			nextProps.fetchLabels();
-		}
-
-		if (!nextProps.account.addresses && !nextProps.account.addressesLoading) {
-			// Load addresses
-			nextProps.fetchAddresses();
 		}
 	}
 
@@ -70,7 +63,7 @@ export default class Client extends React.Component {
 		return (
 			<div className="Client">
 				<div className="Client-header navbar-inverse">
-					<div className="container">
+					<div className="container-fluid">
 						<div className="navbar-header">
 							<button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
 								<span className="sr-only">Toggle navigation</span>
@@ -96,8 +89,8 @@ export default class Client extends React.Component {
 							</form>*/}
 
 							<ul className="nav navbar-nav navbar-right">
-								<NavLink to="/account">{this.props.account.addresses && this.props.account.addresses[0].id}</NavLink>
-								<li><a onClick={::this.handleSignOut}>Sign out</a></li>
+								<NavLink to="/account">{this.props.account && this.props.account.account.addresses && this.props.account.account.addresses[0].id}</NavLink>
+								<li><a className="Client-signOut" onClick={::this.handleSignOut}>Sign out</a></li>
 							</ul>
 						</div>
 					</div>
@@ -106,7 +99,7 @@ export default class Client extends React.Component {
 				{
 					(this.props.account.accountLoading ||
 					this.props.account.labelsLoading ||
-					this.props.account.addressesLoading) &&
+					this.props.account.keysLoading) &&
 						<div className="Client-loading">
 							Loading...
 						</div>
